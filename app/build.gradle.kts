@@ -1,6 +1,7 @@
 plugins {
-    alias(libs.plugins.android.application)
-    id("com.google.gms.google-services") // Firebase plugin
+    id("com.android.application")
+    id("com.google.gms.google-services")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
@@ -15,6 +16,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "OPENWEATHER_API_KEY", "\"1acfe1051af8a21a693760b0291b9ac4\"")
     }
 
     buildTypes {
@@ -26,6 +28,9 @@ android {
             )
         }
     }
+    buildFeatures {
+        buildConfig = true
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -33,12 +38,7 @@ android {
     sourceSets {
         getByName("main") {
             java {
-                srcDirs("src\\main\\java", "src\\main\\java\\WeatherDataModel",
-                    "src\\main\\java",
-                    "src\\main\\java\\WeatherDataModel", "src\\main\\java", "src\\main\\java\\com.example.weatherapp\\WeatherDataModel",
-                    "src\\main\\java",
-                    "src\\main\\java\\WeatherDataModel"
-                )
+                srcDirs("src/main/java")
             }
         }
     }
@@ -72,6 +72,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
     // RecyclerView
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+    // Google Maps
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

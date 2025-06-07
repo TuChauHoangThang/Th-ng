@@ -10,11 +10,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.weatherapp.R; // Đảm bảo import đúng R file của bạn
-import com.example.weatherapp.forecast.ForecastItem;
+import com.example.weatherapp.model.ForecastItem;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import androidx.recyclerview.widget.DiffUtil;
 
 public class ForecastAdapter extends RecyclerView.Adapter<ForecastViewHolder> {
     private List<ForecastItem> forecastList;
@@ -54,8 +55,11 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastViewHolder> {
         return forecastList.size();
     }
     public void updateData(List<ForecastItem> newList){
-        this.forecastList = newList;
-        notifyDataSetChanged(); // Thông báo cho RecyclerView biết dữ liệu đã thay đổi
+        ForecastDiffCallback diffCallback = new ForecastDiffCallback(this.forecastList, newList);
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffCallback);
+        this.forecastList.clear();
+        this.forecastList.addAll(newList);
+        diffResult.dispatchUpdatesTo(this);
     }
 
 }
