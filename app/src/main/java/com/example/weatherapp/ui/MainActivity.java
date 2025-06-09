@@ -28,6 +28,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.weatherapp.BuildConfig;
 import com.example.weatherapp.R;
 import com.example.weatherapp.api.RetrofitClient;
+import com.example.weatherapp.data.DatabaseHelper;
 import com.example.weatherapp.model.CurrentWeatherResponse;
 import com.example.weatherapp.model.ForecastResponse;
 import com.example.weatherapp.model.GeocodingResponse;
@@ -64,6 +65,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Khởi tạo DatabaseHelper và in thông tin database
+        DatabaseHelper.getInstance(this).printDatabaseInfo();
 
         // Khởi tạo ViewModel
         weatherViewModel = new ViewModelProvider(this).get(WeatherViewModel.class);
