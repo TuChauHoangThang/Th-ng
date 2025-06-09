@@ -4,57 +4,31 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.RelativeLayout;
 
-import androidx.room.Room;
-
 import com.example.weatherapp.R;
-import com.example.weatherapp.data.AppDatabase;
+import com.example.weatherapp.data.DatabaseHelper;
 import com.example.weatherapp.data.entity.WeatherBackground;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class WeatherBackgroundManager {
     private static final String TAG = "WeatherBackgroundManager";
     private final Context context;
     private final RelativeLayout mainLayout;
-    private final AppDatabase database;
-    private final ExecutorService executorService;
+    private final DatabaseHelper databaseHelper;
 
     public WeatherBackgroundManager(Context context, RelativeLayout mainLayout) {
         this.context = context;
         this.mainLayout = mainLayout;
-        this.database = AppDatabase.getInstance(context);
-        this.executorService = Executors.newSingleThreadExecutor();
+        this.databaseHelper = DatabaseHelper.getInstance(context);
         
-        // Khởi tạo dữ liệu nếu cần
+        // Khởi tạo dữ liệu
         initializeBackgrounds();
     }
 
     private void initializeBackgrounds() {
-        executorService.execute(() -> {
-            try {
-                if (database.weatherBackgroundDao().getBackgroundCount() == 0) {
-                    List<WeatherBackground> backgrounds = Arrays.asList(
-                        new WeatherBackground("dông", "storm", "Background cho thời tiết dông bão"),
-                        new WeatherBackground("bão", "storm", "Background cho thời tiết dông bão"),
-                        new WeatherBackground("mưa", "rain", "Background cho thời tiết mưa"),
-                        new WeatherBackground("tuyết", "snow", "Background cho thời tiết tuyết"),
-                        new WeatherBackground("mây đen u ám", "dark_cloud", "Background cho mây đen u ám"),
-                        new WeatherBackground("mây đen dày đặc", "dark_cloud", "Background cho mây đen dày đặc"),
-                        new WeatherBackground("sương mù", "mist", "Background cho sương mù"),
-                        new WeatherBackground("bụi", "dust", "Background cho thời tiết nhiều bụi"),
-                        new WeatherBackground("mây", "cloudy", "Background cho thời tiết nhiều mây"),
-                        new WeatherBackground("nắng", "clean", "Background cho thời tiết nắng đẹp")
-                    );
-                    database.weatherBackgroundDao().insertAll(backgrounds);
-                    Log.d(TAG, "Đã khởi tạo " + backgrounds.size() + " background");
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Lỗi khi khởi tạo backgrounds: " + e.getMessage());
-            }
-        });
+        databaseHelper.initializeBackgrounds(() -> 
+            Log.d(TAG, "Khởi tạo backgrounds hoàn tất"));
     }
 
     public void updateBackground(String weatherCondition) {
@@ -63,38 +37,13 @@ public class WeatherBackgroundManager {
             return;
         }
 
-        executorService.execute(() -> {
-            try {
-                // Tìm background phù hợp nhất với điều kiện thời tiết
-                WeatherBackground background = findMatchingBackground(weatherCondition.toLowerCase());
-                
-                int backgroundResId;
-                if (background != null) {
-                    backgroundResId = context.getResources().getIdentifier(
-                        background.getBackgroundPath(),
-                        "drawable",
-                        context.getPackageName()
-                    );
-                    Log.d(TAG, "Đã tìm thấy background: " + background.getWeatherCondition());
-                } else {
-                    setDefaultBackground();
-                    return;
-                }
-
-                // Cập nhật UI trên main thread
-                mainLayout.post(() -> {
-                    try {
-                        mainLayout.setBackgroundResource(backgroundResId);
-                    } catch (Exception e) {
-                        Log.e(TAG, "Lỗi khi set background: " + e.getMessage());
-                        setDefaultBackground();
-                    }
-                });
-            } catch (Exception e) {
-                Log.e(TAG, "Lỗi khi cập nhật background: " + e.getMessage());
-                setDefaultBackground();
-            }
-        });
+        // Tìm background phù hợp nhất với điều kiện thời tiết
+        WeatherBackground background = findMatchingBackground(weatherCondition.toLowerCase());
+        if (background != null) {
+            setBackground(background);
+        } else {
+            setDefaultBackground();
+        }
     }
 
     private WeatherBackground findMatchingBackground(String condition) {
@@ -108,17 +57,56 @@ public class WeatherBackgroundManager {
         // Tìm kiếm theo thứ tự ưu tiên
         for (String term : searchTerms) {
             if (condition.contains(term)) {
-                return database.weatherBackgroundDao().getBackgroundByCondition(term);
+                databaseHelper.getBackgroundByCondition(term, new DatabaseHelper.DatabaseCallback<WeatherBackground>() {
+                    @Override
+                    public void onResult(WeatherBackground result) {
+                        if (result != null) {
+                            setBackground(result);
+                        } else {
+                            setDefaultBackground();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.e(TAG, "Lỗi khi tìm background: " + e.getMessage());
+                        setDefaultBackground();
+                    }
+                });
+                return null; // Return null vì kết quả sẽ được xử lý trong callback
             }
         }
 
         return null;
     }
 
+    private void setBackground(WeatherBackground background) {
+        try {
+            int backgroundResId = context.getResources().getIdentifier(
+                background.getBackgroundPath(),
+                "drawable",
+                context.getPackageName()
+            );
+            mainLayout.post(() -> {
+                try {
+                    mainLayout.setBackgroundResource(backgroundResId);
+                    Log.d(TAG, "Đã set background: " + background.getWeatherCondition());
+                } catch (Exception e) {
+                    Log.e(TAG, "Lỗi khi set background: " + e.getMessage());
+                    setDefaultBackground();
+                }
+            });
+        } catch (Exception e) {
+            Log.e(TAG, "Lỗi khi lấy resource ID: " + e.getMessage());
+            setDefaultBackground();
+        }
+    }
+
     private void setDefaultBackground() {
         mainLayout.post(() -> {
             try {
                 mainLayout.setBackgroundResource(R.drawable.clean);
+                Log.d(TAG, "Đã set default background");
             } catch (Exception e) {
                 Log.e(TAG, "Lỗi khi set default background: " + e.getMessage());
             }
@@ -126,6 +114,6 @@ public class WeatherBackgroundManager {
     }
 
     public void cleanup() {
-        executorService.shutdown();
+        databaseHelper.cleanup();
     }
 } 
