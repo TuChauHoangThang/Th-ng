@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Quan sát thời tiết để cập nhật background
         weatherViewModel.getCurrentWeather().observe(this, weather -> {
             if (weather != null && weather.getWeather() != null && !weather.getWeather().isEmpty()) {
-                String weatherCondition = weather.getWeather().get(0).getMain();
+                String weatherCondition = weather.getWeather().get(0).getDescription();
                 weatherBackgroundManager.updateBackground(weatherCondition);
             }
         });
