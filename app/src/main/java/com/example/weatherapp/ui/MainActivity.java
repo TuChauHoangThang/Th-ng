@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 import android.widget.TextView;
+import android.widget.RelativeLayout;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -32,6 +33,7 @@ import com.example.weatherapp.model.ForecastResponse;
 import com.example.weatherapp.model.GeocodingResponse;
 import com.example.weatherapp.ui.adapter.ViewPagerAdapter;
 import com.example.weatherapp.utils.LocationHelper;
+import com.example.weatherapp.utils.WeatherBackgroundManager;
 import com.example.weatherapp.viewmodel.WeatherViewModel;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
@@ -50,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private WeatherViewModel weatherViewModel;
     private final String OPENWEATHER_API_KEY = BuildConfig.OPENWEATHER_API_KEY;
     private ActivityResultLauncher<String[]> requestPermissionLauncher;
+    private WeatherBackgroundManager weatherBackgroundManager;
 
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
@@ -72,6 +75,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         menuButton = findViewById(R.id.menuButton);
+        RelativeLayout mainLayout = findViewById(R.id.main);
+
+        // Khởi tạo WeatherBackgroundManager
+        weatherBackgroundManager = new WeatherBackgroundManager(this, mainLayout);
 
         // Cấu hình ViewPager và Adapter
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
@@ -103,6 +110,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setupPermissionLauncher();
         checkLocationPermission();
         setupSearchInput();
+
+        // Quan sát thời tiết để cập nhật background
+        weatherViewModel.getCurrentWeather().observe(this, weather -> {
+            if (weather != null && weather.getWeather() != null && !weather.getWeather().isEmpty()) {
+                String weatherCondition = weather.getWeather().get(0).getDescription();
+                weatherBackgroundManager.updateBackground(weatherCondition);
+            }
+        });
     }
 
     private void setupAuthListener() {
