@@ -1,5 +1,6 @@
 package com.example.weatherapp.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,6 +18,8 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText emailEditText;
     private EditText passwordEditText;
     private Button registerButton;
+    private Button loginInsteadButton;
+    private Button homeButton;
     private FirebaseAuth mAuth;
 
     @Override
@@ -28,8 +31,19 @@ public class RegisterActivity extends AppCompatActivity {
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
         registerButton = findViewById(R.id.registerButton);
+        loginInsteadButton = findViewById(R.id.loginInsteadButton);
+        homeButton = findViewById(R.id.homeButton);
 
         registerButton.setOnClickListener(v -> registerUser());
+
+        loginInsteadButton.setOnClickListener(v -> {
+            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+        });
+
+        homeButton.setOnClickListener(v -> {
+            startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+            finish();
+        });
     }
 
     private void registerUser() {
