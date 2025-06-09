@@ -2,18 +2,25 @@ package com.example.weatherapp.ui;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -26,20 +33,29 @@ import com.example.weatherapp.model.GeocodingResponse;
 import com.example.weatherapp.ui.adapter.ViewPagerAdapter;
 import com.example.weatherapp.utils.LocationHelper;
 import com.example.weatherapp.viewmodel.WeatherViewModel;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = "MainActivity";
     private LocationHelper locationHelper;
     private EditText searchInputEditText;
     private WeatherViewModel weatherViewModel;
     private final String OPENWEATHER_API_KEY = BuildConfig.OPENWEATHER_API_KEY;
     private ActivityResultLauncher<String[]> requestPermissionLauncher;
+
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
+    private ImageButton menuButton;
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +69,9 @@ public class MainActivity extends AppCompatActivity {
         searchInputEditText = findViewById(R.id.searchInputEditText);
         TabLayout tabLayout = findViewById(R.id.tabLayout);
         ViewPager2 viewPager = findViewById(R.id.viewPager);
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        menuButton = findViewById(R.id.menuButton);
 
         // Cấu hình ViewPager và Adapter
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
@@ -68,11 +87,88 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }).attach();
 
+        // Cấu hình Navigation Drawer
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+        navigationView.setNavigationItemSelectedListener(this);
+
+        menuButton.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+
+        mAuth = FirebaseAuth.getInstance();
+        setupAuthListener();
+
         // Khởi tạo các thành phần khác
         locationHelper = new LocationHelper(this);
         setupPermissionLauncher();
         checkLocationPermission();
         setupSearchInput();
+    }
+
+    private void setupAuthListener() {
+        mAuthListener = firebaseAuth -> {
+            FirebaseUser user = firebaseAuth.getCurrentUser();
+            updateUI(user);
+        };
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
+    private void updateUI(FirebaseUser user) {
+        MenuItem loginItem = navigationView.getMenu().findItem(R.id.nav_login);
+        MenuItem registerItem = navigationView.getMenu().findItem(R.id.nav_register);
+        MenuItem logoutItem = navigationView.getMenu().findItem(R.id.nav_logout);
+        TextView userEmailTextView = navigationView.getHeaderView(0).findViewById(R.id.textView);
+
+        if (user != null) {
+            loginItem.setVisible(false);
+            registerItem.setVisible(false);
+            logoutItem.setVisible(true);
+            userEmailTextView.setText(user.getEmail());
+        } else {
+            loginItem.setVisible(true);
+            registerItem.setVisible(true);
+            logoutItem.setVisible(false);
+            userEmailTextView.setText("Chưa đăng nhập");
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.nav_login) {
+            startActivity(new Intent(this, LoginActivity.class));
+        } else if (id == R.id.nav_register) {
+            startActivity(new Intent(this, RegisterActivity.class));
+        } else if (id == R.id.nav_logout) {
+            mAuth.signOut();
+            Toast.makeText(this, "Đăng xuất thành công", Toast.LENGTH_SHORT).show();
+        }
+
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     private void setupPermissionLauncher() {
