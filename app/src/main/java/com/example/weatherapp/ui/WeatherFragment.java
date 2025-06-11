@@ -58,7 +58,10 @@ public class WeatherFragment extends Fragment implements OnMapReadyCallback {
 
         // Cấu hình RecyclerView
         forecastAdapter = new ForecastAdapter(new ArrayList<>());
-        forecastRecView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        forecastRecView.setLayoutManager(layoutManager);
+        forecastRecView.setHasFixedSize(true);
+        forecastRecView.setNestedScrollingEnabled(false);
         forecastRecView.setAdapter(forecastAdapter);
 
         // Khởi tạo bản đồ

@@ -1,35 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
-    android:layout_height="match_parent"
-    android:background="@android:color/transparent"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="8dp">
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardBackgroundColor="#40FFFFFF">
 
-    <TextView
-        android:id="@+id/forecastDateText"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Thứ Tư"
-        android:textColor="#FFFFFF"
-        android:textSize="14sp" />
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="8dp">
 
-    <ImageView
-        android:id="@+id/forecastIcon"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="4dp"
-        android:src="@drawable/ic_cloudy"
-        android:visibility="visible" />
+        <TextView
+            android:id="@+id/forecastDateText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Thứ Tư"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:shadowColor="#80000000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="2" />
 
-    <TextView
-        android:id="@+id/forecastTempText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="25°C"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold" />
-</LinearLayout>
+        <ImageView
+            android:id="@+id/forecastIcon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="4dp"
+            android:src="@drawable/ic_cloudy"
+            android:visibility="visible" />
+
+        <TextView
+            android:id="@+id/forecastTempText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="25°C"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:shadowColor="#80000000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="2" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

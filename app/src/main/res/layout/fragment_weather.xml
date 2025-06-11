@@ -21,7 +21,11 @@
             android:text="Đang tải..."
             android:textColor="#FFFFFF"
             android:textSize="28sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:shadowColor="#80000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="4" />
 
         <!-- Ngày hiện tại -->
         <TextView
@@ -33,7 +37,11 @@
             android:layout_marginTop="4dp"
             android:text=""
             android:textColor="#FFFFFF"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:shadowColor="#80000000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="2" />
 
         <!-- Icon thời tiết -->
         <ImageView
@@ -58,7 +66,11 @@
             android:text="--"
             android:textColor="#FFFFFF"
             android:textSize="48sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:shadowColor="#80000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="4" />
 
         <!-- Mô tả -->
         <TextView
@@ -70,7 +82,11 @@
             android:layout_marginTop="4dp"
             android:text=""
             android:textColor="#FFFFFF"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:shadowColor="#80000000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="2" />
 
         <!-- Bản đồ Google Maps -->
         <androidx.cardview.widget.CardView
@@ -96,7 +112,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/mapCard"
-            android:layout_marginTop="24dp" />
+            android:layout_marginTop="24dp"
+            android:clipToPadding="false"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:scrollbars="horizontal"
+            android:overScrollMode="never" />
 
     </RelativeLayout>
 </ScrollView> 
