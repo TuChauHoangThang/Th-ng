@@ -51,11 +51,19 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
+    // Import the BoM for the Firebase platform
+    implementation(platform("com.google.firebase:firebase-bom:33.0.0")) // Check for the latest version
+
+    // Add the dependency for the Cloud Firestore library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-analytics")
     // Realtime Database
     implementation("com.google.firebase:firebase-database")
     // Authentication
     implementation("com.google.firebase:firebase-auth")
+    // Storage
+    implementation("com.google.firebase:firebase-storage")
     // Retrofit cho mạng
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0") // Converter cho JSON (Gson)
