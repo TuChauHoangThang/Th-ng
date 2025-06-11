@@ -33,7 +33,7 @@
             android:value="${MAPS_API_KEY}" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -43,11 +43,6 @@
 
         <activity android:name=".ui.LoginActivity" />
         <activity android:name=".ui.RegisterActivity" />
-
-        <activity
-            android:name=".BackgroundUploadActivity"
-            android:exported="false"
-            android:label="Tải lên ảnh nền" />
 
     </application>
 
