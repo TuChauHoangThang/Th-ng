@@ -23,5 +23,9 @@
             android:id="@+id/nav_map"
             android:icon="@drawable/ic_map"
             android:title="Bản đồ Google Map" />
+        <item
+            android:id="@+id/nav_lock_screen"
+            android:icon="@drawable/ic_lock"
+            android:title="Hiển thị trên màn hình khóa" />
     </group>
 </menu> 

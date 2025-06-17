@@ -3,7 +3,10 @@ package com.example.weatherapp.ui;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -32,6 +35,7 @@ import com.example.weatherapp.data.DatabaseHelper;
 import com.example.weatherapp.model.CurrentWeatherResponse;
 import com.example.weatherapp.model.ForecastResponse;
 import com.example.weatherapp.model.GeocodingResponse;
+import com.example.weatherapp.services.LockScreenService;
 import com.example.weatherapp.ui.adapter.ViewPagerAdapter;
 import com.example.weatherapp.utils.LocationHelper;
 import com.example.weatherapp.utils.WeatherBackgroundManager;
@@ -213,10 +217,53 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_map) {
             Intent intent = new Intent(this, MapActivity.class);
             startActivityForResult(intent, 2001);
+        } else if (id == R.id.nav_lock_screen) {
+            handleLockScreenService();
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void handleLockScreenService() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1002);
+                return;
+            }
+        }
+
+        SharedPreferences prefs = getSharedPreferences("WeatherApp", MODE_PRIVATE);
+        boolean isServiceRunning = prefs.getBoolean("lock_screen_service_running", false);
+
+        if (!isServiceRunning) {
+            // Bắt đầu service
+            Intent serviceIntent = new Intent(this, LockScreenService.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent);
+            } else {
+                startService(serviceIntent);
+            }
+            prefs.edit().putBoolean("lock_screen_service_running", true).apply();
+            Toast.makeText(this, "Đã bật hiển thị trên màn hình khóa", Toast.LENGTH_SHORT).show();
+        } else {
+            // Dừng service
+            stopService(new Intent(this, LockScreenService.class));
+            prefs.edit().putBoolean("lock_screen_service_running", false).apply();
+            Toast.makeText(this, "Đã tắt hiển thị trên màn hình khóa", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1002) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                handleLockScreenService();
+            } else {
+                Toast.makeText(this, "Cần cấp quyền thông báo để sử dụng tính năng này", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     private void setupPermissionLauncher() {

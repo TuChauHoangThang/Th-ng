@@ -52,7 +52,7 @@
                 android:id="@+id/dateText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="8dp"
                 android:text=""
                 android:textColor="#FFFFFF"
                 android:textSize="16sp" />
@@ -83,6 +83,30 @@
             android:textSize="48sp"
             android:textStyle="bold" />
 
+        <!-- Độ ẩm -->
+        <TextView
+            android:id="@+id/humidityText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/temperatureText"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="6dp"
+            android:text="Độ ẩm: --%"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+
+        <!-- Tốc độ gió -->
+        <TextView
+            android:id="@+id/windSpeedText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/humidityText"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="4dp"
+            android:text="Gió: -- m/s"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+
         <!-- Mô tả -->
         <TextView
             android:id="@+id/descriptionText"
@@ -90,7 +114,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/temperatureText"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="50dp"
             android:text=""
             android:textColor="#FFFFFF"
             android:textSize="18sp" />
@@ -101,7 +125,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/descriptionText"
-            android:layout_marginTop="24dp" />
+            android:layout_marginTop="230dp" />
 
     </RelativeLayout>
 </ScrollView> 

@@ -31,6 +31,14 @@ import java.util.List;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.example.weatherapp.viewmodel.FavoriteCityViewModelFactory;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import androidx.core.app.ActivityCompat;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 
 public class WeatherFragment extends Fragment {
 
@@ -43,6 +51,7 @@ public class WeatherFragment extends Fragment {
     private ImageButton favoriteButton;
     private String currentCityName;
     private boolean isFavorite = false;
+    private TextView humidityText, windSpeedText;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -61,6 +70,8 @@ public class WeatherFragment extends Fragment {
         descriptionText = view.findViewById(R.id.descriptionText);
         forecastRecView = view.findViewById(R.id.forecastRecView);
         favoriteButton = view.findViewById(R.id.favoriteButton);
+        humidityText = view.findViewById(R.id.humidityText);
+        windSpeedText = view.findViewById(R.id.windSpeedText);
 
         // Cấu hình RecyclerView
         forecastAdapter = new ForecastAdapter(new ArrayList<>());
@@ -111,6 +122,11 @@ public class WeatherFragment extends Fragment {
                 }
             }
         });
+
+        // Nếu chưa có city nào được chọn, tự động lấy vị trí hiện tại
+        if (currentCityName == null) {
+            requestWeatherByCurrentLocation();
+        }
     }
 
     private void updateCurrentWeatherUI(CurrentWeatherResponse weatherData) {
@@ -122,6 +138,8 @@ public class WeatherFragment extends Fragment {
         String iconCode = weatherData.getWeather().get(0).getIcon();
         String iconUrl = "https://openweathermap.org/img/wn/" + iconCode + "@2x.png";
         Glide.with(this).load(iconUrl).error(R.drawable.ic_cloudy).into(weatherIcon);
+        humidityText.setText(String.format(Locale.getDefault(), "Độ ẩm: %d%%", weatherData.getMain().getHumidity()));
+        windSpeedText.setText(String.format(Locale.getDefault(), "Gió: %.1f m/s", weatherData.getWind().getSpeed()));
         updateFavoriteIcon();
     }
 
@@ -150,6 +168,57 @@ public class WeatherFragment extends Fragment {
             favoriteButton.setImageResource(R.drawable.ic_favorite_filled);
         } else {
             favoriteButton.setImageResource(R.drawable.ic_favorite_border);
+        }
+    }
+
+    private void requestWeatherByCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // Xin quyền vị trí nếu chưa có
+            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1001);
+            return;
+        }
+        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext());
+        fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+            if (location != null) {
+                getCityNameFromLocation(location);
+            } else {
+                locationText.setText("Không lấy được vị trí");
+            }
+        });
+    }
+
+    private void getCityNameFromLocation(Location location) {
+        Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
+        try {
+            java.util.List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address address = addresses.get(0);
+                String cityName = address.getLocality(); // Thành phố
+                String adminArea = address.getAdminArea(); // Tỉnh/thành phố lớn
+                String displayName;
+                if (cityName != null && !cityName.isEmpty() && adminArea != null && !adminArea.isEmpty()) {
+                    displayName = cityName + ", " + adminArea;
+                } else if (adminArea != null && !adminArea.isEmpty()) {
+                    displayName = adminArea;
+                } else if (cityName != null && !cityName.isEmpty()) {
+                    displayName = cityName;
+                } else {
+                    displayName = "Không xác định được vị trí";
+                }
+                locationText.setText(displayName);
+                // Gọi API thời tiết với cityName (ưu tiên city, fallback adminArea)
+                String queryCity = cityName != null && !cityName.isEmpty() ? cityName : adminArea;
+                if (queryCity != null && !queryCity.isEmpty()) {
+                    if (getActivity() instanceof MainActivity) {
+                        ((MainActivity) getActivity()).searchCity(queryCity);
+                    }
+                }
+            } else {
+                locationText.setText("Không xác định được thành phố");
+            }
+        } catch (Exception e) {
+            locationText.setText("Lỗi lấy tên thành phố");
         }
     }
 } 

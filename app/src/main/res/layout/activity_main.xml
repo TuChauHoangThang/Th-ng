@@ -49,18 +49,18 @@
                 android:layout_height="48dp"
                 android:layout_centerVertical="true"
                 android:background="@android:color/transparent"
+                android:clickable="true"
+                android:cursorVisible="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
                 android:hint="Tìm kiếm thành phố..."
                 android:imeOptions="actionSearch"
                 android:inputType="text"
-                android:padding="14dp"
-                android:textColor="@android:color/holo_blue_dark"
-                android:textColorHint="@android:color/darker_gray"
-                android:singleLine="true"
-                android:gravity="center_vertical"
-                android:focusable="true"
-                android:clickable="true"
                 android:longClickable="true"
-                android:cursorVisible="true"/>
+                android:padding="14dp"
+                android:singleLine="true"
+                android:textColor="@color/gray"
+                android:textColorHint="@android:color/darker_gray" />
 
         </RelativeLayout>
 
