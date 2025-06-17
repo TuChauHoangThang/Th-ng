@@ -73,8 +73,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
     // Glide để tải ảnh (icon thời tiết) - Tùy chọn nhưng được khuyến khích
-    implementation("com.github.bumptech.glide:glide:4.15.1")
-    annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
     // Lifecycle extensions (ViewModel, LiveData) - Được khuyến khích cho kiến trúc MVVM
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
