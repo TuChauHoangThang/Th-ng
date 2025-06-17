@@ -36,6 +36,8 @@ import com.example.weatherapp.ui.adapter.ViewPagerAdapter;
 import com.example.weatherapp.utils.LocationHelper;
 import com.example.weatherapp.utils.WeatherBackgroundManager;
 import com.example.weatherapp.viewmodel.WeatherViewModel;
+import com.example.weatherapp.viewmodel.FavoriteCityViewModel;
+import com.example.weatherapp.data.FavoriteCity;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -60,6 +62,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageButton menuButton;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private FavoriteCityViewModel favoriteCityViewModel;
+    private MenuItem favoritesMenuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +119,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         checkLocationPermission();
         setupSearchInput();
 
+        // Khởi tạo FavoriteCityViewModel
+        String userId = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
+        if (userId != null) {
+            favoriteCityViewModel = new FavoriteCityViewModel(getApplication(), userId);
+        }
+
         // Quan sát thời tiết để cập nhật background
         weatherViewModel.getCurrentWeather().observe(this, weather -> {
             if (weather != null && weather.getWeather() != null && !weather.getWeather().isEmpty()) {
@@ -149,18 +159,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MenuItem loginItem = navigationView.getMenu().findItem(R.id.nav_login);
         MenuItem registerItem = navigationView.getMenu().findItem(R.id.nav_register);
         MenuItem logoutItem = navigationView.getMenu().findItem(R.id.nav_logout);
+        favoritesMenuItem = navigationView.getMenu().findItem(R.id.nav_favorites);
         TextView userEmailTextView = navigationView.getHeaderView(0).findViewById(R.id.textView);
 
         if (user != null) {
             loginItem.setVisible(false);
             registerItem.setVisible(false);
             logoutItem.setVisible(true);
+            favoritesMenuItem.setVisible(true);
             userEmailTextView.setText(user.getEmail());
+            
+            // Khởi tạo FavoriteCityViewModel nếu chưa có
+            if (favoriteCityViewModel == null) {
+                favoriteCityViewModel = new FavoriteCityViewModel(getApplication(), user.getUid());
+            }
         } else {
             loginItem.setVisible(true);
             registerItem.setVisible(true);
             logoutItem.setVisible(false);
+            favoritesMenuItem.setVisible(false);
             userEmailTextView.setText("Chưa đăng nhập");
+            favoriteCityViewModel = null;
         }
     }
 
@@ -184,6 +203,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_logout) {
             mAuth.signOut();
             Toast.makeText(this, "Đăng xuất thành công", Toast.LENGTH_SHORT).show();
+        } else if (id == R.id.nav_favorites) {
+            if (mAuth.getCurrentUser() != null) {
+                Intent intent = new Intent(this, FavoritesActivity.class);
+                startActivityForResult(intent, 1001);
+            } else {
+                Toast.makeText(this, "Vui lòng đăng nhập để xem danh sách yêu thích", Toast.LENGTH_SHORT).show();
+            }
+        } else if (id == R.id.nav_map) {
+            Intent intent = new Intent(this, MapActivity.class);
+            startActivityForResult(intent, 2001);
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
@@ -309,5 +338,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         double defaultLon = 105.8542;
         fetchWeatherData(defaultLat, defaultLon);
         Toast.makeText(this, "Không thể lấy vị trí. Hiển thị thời tiết cho Hà Nội.", Toast.LENGTH_LONG).show();
+    }
+
+    // Thêm phương thức để thêm thành phố vào danh sách yêu thích
+    public void addToFavorites(String cityName) {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null && favoriteCityViewModel != null) {
+            favoriteCityViewModel.addToFavorites(cityName);
+            Toast.makeText(this, "Đã thêm " + cityName + " vào danh sách yêu thích", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Vui lòng đăng nhập để thêm vào danh sách yêu thích", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // Thêm phương thức để tìm kiếm thành phố
+    public void searchCity(String cityName) {
+        searchInputEditText.setText(cityName);
+        fetchWeatherByCityName(cityName);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
+            String cityName = data.getStringExtra("city_name");
+            if (cityName != null) {
+                searchCity(cityName);
+            }
+        }
+        if (requestCode == 2001 && resultCode == RESULT_OK && data != null) {
+            String cityName = data.getStringExtra("city_name");
+            if (cityName != null) {
+                searchCity(cityName);
+            }
+        }
     }
 }

@@ -10,12 +10,15 @@ import com.example.weatherapp.data.dao.BackgroundImageDao;
 import com.example.weatherapp.data.dao.WeatherBackgroundDao;
 import com.example.weatherapp.data.entity.BackgroundImage;
 import com.example.weatherapp.data.entity.WeatherBackground;
+import com.example.weatherapp.data.FavoriteCity;
+import com.example.weatherapp.data.FavoriteCityDao;
 
-@Database(entities = {WeatherBackground.class, BackgroundImage.class}, version = 2)
+@Database(entities = {WeatherBackground.class, BackgroundImage.class, FavoriteCity.class}, version = 3)
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase instance;
     public abstract WeatherBackgroundDao weatherBackgroundDao();
     public abstract BackgroundImageDao backgroundImageDao();
+    public abstract FavoriteCityDao favoriteCityDao();
 
     public static synchronized AppDatabase getInstance(Context context) {
         if (instance == null) {

@@ -11,44 +11,59 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <!-- Vị trí -->
-        <TextView
-            android:id="@+id/locationText"
-            android:layout_width="wrap_content"
+        <!-- Vị trí, ngày tháng và nút yêu thích -->
+        <LinearLayout
+            android:id="@+id/topInfoLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:text="Đang tải..."
-            android:textColor="#FFFFFF"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:shadowColor="#80000000"
-            android:shadowDx="2"
-            android:shadowDy="2"
-            android:shadowRadius="4" />
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
 
-        <!-- Ngày hiện tại -->
-        <TextView
-            android:id="@+id/dateText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/locationText"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="4dp"
-            android:text=""
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:shadowColor="#80000000"
-            android:shadowDx="1"
-            android:shadowDy="1"
-            android:shadowRadius="2" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/locationText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Đang tải..."
+                    android:textColor="#FFFFFF"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:textAlignment="center" />
+
+                <ImageButton
+                    android:id="@+id/favoriteButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_favorite_border"
+                    android:contentDescription="Thêm vào danh sách yêu thích"
+                    android:padding="8dp"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/dateText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text=""
+                android:textColor="#FFFFFF"
+                android:textSize="16sp" />
+        </LinearLayout>
 
         <!-- Icon thời tiết -->
         <ImageView
             android:id="@+id/weatherIcon"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_below="@id/dateText"
+            android:layout_below="@id/topInfoLayout"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:src="@drawable/ic_cloudy"
@@ -66,11 +81,7 @@
             android:text="--"
             android:textColor="#FFFFFF"
             android:textSize="48sp"
-            android:textStyle="bold"
-            android:shadowColor="#80000000"
-            android:shadowDx="2"
-            android:shadowDy="2"
-            android:shadowRadius="4" />
+            android:textStyle="bold" />
 
         <!-- Mô tả -->
         <TextView
@@ -82,42 +93,15 @@
             android:layout_marginTop="4dp"
             android:text=""
             android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:shadowColor="#80000000"
-            android:shadowDx="1"
-            android:shadowDy="1"
-            android:shadowRadius="2" />
-
-        <!-- Bản đồ Google Maps -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/mapCard"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_below="@id/descriptionText"
-            android:layout_marginTop="24dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp">
-
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/map"
-                android:name="com.google.android.gms.maps.SupportMapFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-        </androidx.cardview.widget.CardView>
+            android:textSize="18sp" />
 
         <!-- Dự báo 5 ngày -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/forecastRecView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/mapCard"
-            android:layout_marginTop="24dp"
-            android:clipToPadding="false"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:scrollbars="horizontal"
-            android:overScrollMode="never" />
+            android:layout_below="@id/descriptionText"
+            android:layout_marginTop="24dp" />
 
     </RelativeLayout>
 </ScrollView> 
