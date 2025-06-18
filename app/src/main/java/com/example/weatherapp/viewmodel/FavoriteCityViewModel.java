@@ -37,4 +37,8 @@ public class FavoriteCityViewModel extends AndroidViewModel {
     public void addToFavorites(String cityName) {
         repository.checkAndAddFavorite(cityName, userId);
     }
+
+    public void syncFavoritesFromFirestore(String userId) {
+        repository.syncFavoritesFromFirestore(userId);
+    }
 } 

@@ -2,98 +2,120 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/widget_background"
-    android:padding="16dp">
+    android:layout_height="128dp">
 
-    <!-- Thông tin vị trí và thời gian -->
-    <LinearLayout
-        android:id="@+id/topInfoLayout"
+    <!-- Background Image Container -->
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/locationText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+        <!-- Background Image -->
+        <ImageView
+            android:id="@+id/backgroundImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
 
-        <TextView
-            android:id="@+id/timestampText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#CCFFFFFF"
-            android:textSize="14sp" />
-    </LinearLayout>
+        <!-- Gradient Overlay -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/notification_gradient"
+            android:scaleType="fitXY" />
+    </FrameLayout>
 
-    <!-- Icon thời tiết -->
-    <ImageView
-        android:id="@+id/weatherIcon"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_below="@id/topInfoLayout"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:src="@drawable/ic_cloudy"
-        android:visibility="visible"
-        tools:visibility="visible" />
-
-    <!-- Nhiệt độ -->
-    <TextView
-        android:id="@+id/temperatureText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/weatherIcon"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"
-        android:text="--"
-        android:textColor="#FFFFFF"
-        android:textSize="36sp"
-        android:textStyle="bold" />
-
-    <!-- Mô tả thời tiết -->
-    <TextView
-        android:id="@+id/descriptionText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/temperatureText"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="4dp"
-        android:text=""
-        android:textColor="#FFFFFF"
-        android:textSize="16sp" />
-
-    <!-- Thông tin chi tiết -->
-    <LinearLayout
+    <!-- Content Container -->
+    <RelativeLayout
+        android:id="@+id/contentLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/descriptionText"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal"
-        android:gravity="center">
+        android:layout_height="match_parent"
+        android:padding="12dp">
 
-        <!-- Độ ẩm -->
-        <TextView
-            android:id="@+id/humidityText"
-            android:layout_width="wrap_content"
+        <!-- Top Row: Location and Time -->
+        <LinearLayout
+            android:id="@+id/topInfoLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:text="Độ ẩm: --%"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp" />
+            android:orientation="horizontal"
+            android:layout_alignParentTop="true">
 
-        <!-- Tốc độ gió -->
-        <TextView
-            android:id="@+id/windSpeedText"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/locationText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/timestampText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#CCFFFFFF"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Center Content -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Gió: -- m/s"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp" />
-    </LinearLayout>
+            android:layout_centerInParent="true"
+            android:orientation="horizontal"
+            android:gravity="center">
 
+            <!-- Left: Temperature -->
+            <TextView
+                android:id="@+id/temperatureText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="12dp" />
+
+            <!-- Center: Weather Icon -->
+            <ImageView
+                android:id="@+id/weatherIcon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginHorizontal="8dp" />
+
+            <!-- Right: Description and Details -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
+
+                <TextView
+                    android:id="@+id/descriptionText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/humidityText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#CCFFFFFF"
+                    android:textSize="12sp"
+                    android:maxLines="1" />
+
+                <TextView
+                    android:id="@+id/windSpeedText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#CCFFFFFF"
+                    android:textSize="12sp"
+                    android:maxLines="1" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </RelativeLayout>
 </RelativeLayout> 

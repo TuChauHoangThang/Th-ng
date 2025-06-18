@@ -26,6 +26,15 @@ import retrofit2.Response;
 import android.util.Log;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
+import android.speech.RecognitionListener;
+import java.util.ArrayList;
+import android.widget.ImageButton;
+import android.content.pm.PackageManager;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import com.example.weatherapp.utils.VoiceRecognitionHelper;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
     private GoogleMap mMap;
@@ -35,6 +44,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private TextView statusText;
     private String selectedCityName = null;
     private LatLng selectedLatLng = null;
+    private ImageButton micButton;
+    private VoiceRecognitionHelper voiceRecognitionHelper;
+    private static final int REQUEST_RECORD_AUDIO_PERMISSION = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +64,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         btnShowWeather = findViewById(R.id.btnShowWeather);
         progressBar = findViewById(R.id.progressBar);
         statusText = findViewById(R.id.statusText);
+        micButton = findViewById(R.id.micButton);
 
         // Ẩn các elements ban đầu
         btnShowWeather.setVisibility(View.GONE);
@@ -88,12 +101,32 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
+        // Khởi tạo VoiceRecognitionHelper
+        voiceRecognitionHelper = new VoiceRecognitionHelper(this, result -> {
+            searchEditText.setText(result);
+            performSearch();
+        });
+
+        micButton.setOnClickListener(v -> {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.RECORD_AUDIO}, REQUEST_RECORD_AUDIO_PERMISSION);
+            } else {
+                voiceRecognitionHelper.startVoiceRecognition();
+            }
+        });
+
         // Khởi tạo map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map_fragment);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Không cần gọi destroy() nữa vì đã chuyển sang dùng Intent
     }
 
     private void performSearch() {
@@ -569,5 +602,25 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Log.d("MapActivity", "Chuyển đổi tên thành phố: '" + originalName + "' -> '" + cityName + "'");
         
         return cityName;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                voiceRecognitionHelper.startVoiceRecognition();
+            } else {
+                Toast.makeText(this, "Bạn cần cấp quyền micro để sử dụng chức năng này", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (voiceRecognitionHelper != null) {
+            voiceRecognitionHelper.handleActivityResult(requestCode, resultCode, data);
+        }
     }
 } 

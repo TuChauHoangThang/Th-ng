@@ -39,6 +39,8 @@ import android.location.Location;
 import androidx.core.app.ActivityCompat;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 public class WeatherFragment extends Fragment {
 
@@ -207,6 +209,9 @@ public class WeatherFragment extends Fragment {
                     displayName = "Không xác định được vị trí";
                 }
                 locationText.setText(displayName);
+                // Lưu tên địa điểm hiện tại vào SharedPreferences
+                SharedPreferences prefs = requireContext().getSharedPreferences("WeatherPrefs", Context.MODE_PRIVATE);
+                prefs.edit().putString("current_location_name", displayName).apply();
                 // Gọi API thời tiết với cityName (ưu tiên city, fallback adminArea)
                 String queryCity = cityName != null && !cityName.isEmpty() ? cityName : adminArea;
                 if (queryCity != null && !queryCity.isEmpty()) {

@@ -8,6 +8,9 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
+import android.speech.RecognitionListener;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.inputmethod.EditorInfo;
@@ -23,6 +26,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
@@ -42,6 +47,7 @@ import com.example.weatherapp.utils.WeatherBackgroundManager;
 import com.example.weatherapp.viewmodel.WeatherViewModel;
 import com.example.weatherapp.viewmodel.FavoriteCityViewModel;
 import com.example.weatherapp.data.FavoriteCity;
+import com.example.weatherapp.utils.VoiceRecognitionHelper;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -51,6 +57,8 @@ import com.google.firebase.auth.FirebaseUser;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = "MainActivity";
@@ -64,10 +72,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ImageButton menuButton;
+    private ImageButton micButton;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FavoriteCityViewModel favoriteCityViewModel;
     private MenuItem favoritesMenuItem;
+    private VoiceRecognitionHelper voiceRecognitionHelper;
+    private static final int REQUEST_RECORD_AUDIO_PERMISSION = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         menuButton = findViewById(R.id.menuButton);
+        micButton = findViewById(R.id.micButton);
         RelativeLayout mainLayout = findViewById(R.id.main);
 
         // Khởi tạo WeatherBackgroundManager
@@ -136,6 +148,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 weatherBackgroundManager.updateBackground(weatherCondition);
             }
         });
+
+        // Khởi tạo VoiceRecognitionHelper
+        voiceRecognitionHelper = new VoiceRecognitionHelper(this, result -> {
+            searchInputEditText.setText(result);
+            fetchWeatherByCityName(result);
+        });
+
+        // Xử lý sự kiện click nút micro
+        micButton.setOnClickListener(v -> {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_RECORD_AUDIO_PERMISSION);
+            } else {
+                voiceRecognitionHelper.startVoiceRecognition();
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Không cần gọi destroy() nữa vì đã chuyển sang dùng Intent
     }
 
     private void setupAuthListener() {
@@ -219,6 +252,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startActivityForResult(intent, 2001);
         } else if (id == R.id.nav_lock_screen) {
             handleLockScreenService();
+        } else if (id == R.id.nav_alert_settings) {
+            Log.d("MainActivity", "Chọn menu Cài đặt cảnh báo - mở AlertSettingsFragment");
+            try {
+                getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.main, new com.example.weatherapp.ui.fragment.AlertSettingsFragment())
+                    .addToBackStack(null)
+                    .commit();
+                Log.d("MainActivity", "Đã gọi replace AlertSettingsFragment vào R.id.main");
+            } catch (Exception e) {
+                Log.e("MainActivity", "Lỗi khi replace AlertSettingsFragment", e);
+            }
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
@@ -262,6 +306,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 handleLockScreenService();
             } else {
                 Toast.makeText(this, "Cần cấp quyền thông báo để sử dụng tính năng này", Toast.LENGTH_LONG).show();
+            }
+        } else if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                voiceRecognitionHelper.startVoiceRecognition();
+            } else {
+                Toast.makeText(this, "Bạn cần cấp quyền micro để sử dụng chức năng này", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -407,17 +457,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
-            String cityName = data.getStringExtra("city_name");
-            if (cityName != null) {
-                searchCity(cityName);
-            }
-        }
-        if (requestCode == 2001 && resultCode == RESULT_OK && data != null) {
-            String cityName = data.getStringExtra("city_name");
-            if (cityName != null) {
-                searchCity(cityName);
-            }
+        if (voiceRecognitionHelper != null) {
+            voiceRecognitionHelper.handleActivityResult(requestCode, resultCode, data);
         }
     }
 }

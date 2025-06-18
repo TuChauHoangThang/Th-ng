@@ -56,6 +56,11 @@ public class FavoritesFragment extends Fragment implements FavoriteCityAdapter.F
         FavoriteCityViewModelFactory factory = new FavoriteCityViewModelFactory(requireActivity().getApplication(), userId);
         viewModel = new ViewModelProvider(this, factory).get(FavoriteCityViewModel.class);
 
+        // ĐỒNG BỘ FIRESTORE VỀ LOCAL
+        if (!userId.isEmpty()) {
+            viewModel.syncFavoritesFromFirestore(userId);
+        }
+
         // Quan sát danh sách thành phố yêu thích
         viewModel.getAllFavoriteCities().observe(getViewLifecycleOwner(), cities -> {
             cityWeatherList.clear();
