@@ -2,8 +2,9 @@ package com.example.weatherapp.data;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import androidx.room.Index;
 
-@Entity(tableName = "favorite_cities")
+@Entity(tableName = "favorite_cities", indices = {@Index(value = {"cityName", "userId"}, unique = true)})
 public class FavoriteCity {
     @PrimaryKey(autoGenerate = true)
     private int id;

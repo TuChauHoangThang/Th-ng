@@ -96,12 +96,7 @@ public class FavoriteCityRepository {
           .addOnSuccessListener(queryDocumentSnapshots -> {
               executorService.execute(() -> {
                   // Xóa local cũ
-                  List<FavoriteCity> oldList = favoriteCityDao.getFavoriteCitiesForUser(userId).getValue();
-                  if (oldList != null) {
-                      for (FavoriteCity city : oldList) {
-                          favoriteCityDao.delete(city);
-                      }
-                  }
+                  favoriteCityDao.clearFavoritesForUser(userId);
                   // Lưu danh sách mới
                   for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots) {
                       String cityName = doc.getString("cityName");

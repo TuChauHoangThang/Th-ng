@@ -119,6 +119,16 @@ public class FavoritesFragment extends Fragment implements FavoriteCityAdapter.F
     }
 
     private void addCityWeather(String cityName, String temp, String desc, String iconUrl) {
+        // Kiểm tra cityName đã có trong cityWeatherList chưa
+        for (FavoriteCityAdapter.FavoriteCityWeather city : cityWeatherList) {
+            if (city.cityName.equalsIgnoreCase(cityName)) {
+                loadingCities.remove(cityName);
+                if (loadingCities.isEmpty()) {
+                    adapter.setCities(new ArrayList<>(cityWeatherList));
+                }
+                return; // Đã có rồi thì không add nữa
+            }
+        }
         cityWeatherList.add(new FavoriteCityAdapter.FavoriteCityWeather(cityName, temp, desc, iconUrl));
         loadingCities.remove(cityName);
         if (loadingCities.isEmpty()) {

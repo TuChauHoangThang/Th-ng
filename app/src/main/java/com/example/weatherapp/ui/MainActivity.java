@@ -460,5 +460,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (voiceRecognitionHelper != null) {
             voiceRecognitionHelper.handleActivityResult(requestCode, resultCode, data);
         }
+        // Xử lý kết quả trả về từ MapActivity
+        if (resultCode == RESULT_OK && data != null && data.hasExtra("city_name")) {
+            String cityName = data.getStringExtra("city_name");
+            if (cityName != null && !cityName.isEmpty()) {
+                searchCity(cityName); // Tự động tìm kiếm và hiển thị thành phố vừa chọn
+            }
+        }
     }
 }

@@ -184,7 +184,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             }
                             
                             btnShowWeather.setVisibility(View.VISIBLE);
-                            showSuccess("✅ Đã tìm thấy: " + selectedCityName);
+                            showSuccess(" Đã tìm thấy: " + selectedCityName);
                             
                         } else {
                             // Không tìm thấy với ",VN", thử tìm kiếm không có country code
@@ -195,7 +195,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     @Override
                     public void onFailure(Call<GeocodingResponse> call, Throwable t) {
                         Log.e("MapActivity", "Lỗi kết nối: " + t.getMessage());
-                        showError("❌ Lỗi kết nối: " + t.getMessage());
+                        showError(" Lỗi kết nối: " + t.getMessage());
                         showLoading(false);
                     }
                 });
@@ -226,7 +226,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             }
                             
                             btnShowWeather.setVisibility(View.VISIBLE);
-                            showSuccess("✅ Đã tìm thấy: " + selectedCityName);
+                            showSuccess(" Đã tìm thấy: " + selectedCityName);
                             
                         } else {
                             // Không tìm thấy kết quả, thử với các tên phổ biến
@@ -238,7 +238,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     @Override
                     public void onFailure(Call<GeocodingResponse> call, Throwable t) {
                         Log.e("MapActivity", "Lỗi kết nối (no country): " + t.getMessage());
-                        showError("❌ Lỗi kết nối: " + t.getMessage());
+                        showError(" Lỗi kết nối: " + t.getMessage());
                         showLoading(false);
                     }
                 });
@@ -268,21 +268,21 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                                 }
                                 
                                 btnShowWeather.setVisibility(View.VISIBLE);
-                                showSuccess("✅ Đã tìm thấy: " + selectedCityName + " (từ " + cityName + ")");
+                                showSuccess(" Đã tìm thấy: " + selectedCityName + " (từ " + cityName + ")");
                             } else {
-                                showError("❌ Không tìm thấy thành phố: " + cityName + "\n💡 Thử: " + String.join(", ", commonNames));
+                                showError(" Không tìm thấy thành phố: " + cityName + "\n Thử: " + String.join(", ", commonNames));
                             }
                             showLoading(false);
                         }
                         
                         @Override
                         public void onFailure(Call<GeocodingResponse> call, Throwable t) {
-                            showError("❌ Lỗi kết nối: " + t.getMessage());
+                            showError(" Lỗi kết nối: " + t.getMessage());
                             showLoading(false);
                         }
                     });
         } else {
-            showError("❌ Không tìm thấy thành phố: " + cityName + "\n💡 Gợi ý: Hà Nội, TP.HCM, Đà Nẵng, Huế, Nha Trang...");
+            showError(" Không tìm thấy thành phố: " + cityName + "\n💡 Gợi ý: Hà Nội, TP.HCM, Đà Nẵng, Huế, Nha Trang...");
             showLoading(false);
         }
     }
@@ -408,7 +408,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             if (markerTitle != null && !markerTitle.isEmpty()) {
                 selectedCityName = markerTitle;
                 btnShowWeather.setVisibility(View.VISIBLE);
-                showSuccess("✅ Đã chọn: " + selectedCityName);
+                showSuccess(" Đã chọn: " + selectedCityName);
             }
             return true;
                 });

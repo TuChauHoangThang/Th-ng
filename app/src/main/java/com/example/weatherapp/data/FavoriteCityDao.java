@@ -21,4 +21,7 @@ public interface FavoriteCityDao {
     
     @Query("SELECT * FROM favorite_cities WHERE cityName = :cityName AND userId = :userId")
     FavoriteCity getFavoriteCity(String cityName, String userId);
+    
+    @Query("DELETE FROM favorite_cities WHERE userId = :userId")
+    void clearFavoritesForUser(String userId);
 } 
